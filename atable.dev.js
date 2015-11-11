@@ -1,10 +1,15 @@
 var ATable = function(options) {
     
-    var rowcounts = options.rowcount;
-    var tabledomname = options.name;
-    var datafromwhat = options.datafromurl;
-    var rowsTotal;
+    var rowcounts = options.rowcount , tabledomname = options.name , datafromwhat = options.datafromurl , rowsTotal, tableop = {};
+
+	$('#'+tabledomname).after('   <span id="'+tabledomname+'totalcountmain">Total :</span><span id="'+tabledomname+'totalcount">0</span>');
     
+	$('#'+tabledomname).after('   <span id="'+tabledomname+'totalcountselect">Row Count :</span><select id="'+tabledomname+'select"><option value="'+rowcounts+'">'+rowcounts+'</option><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="all">all</option></select>');
+    
+
+    $('#'+tabledomname+'totalcountmain').hide();
+    $('#'+tabledomname+'totalcount').hide();
+
     if(datafromwhat==null || datafromwhat=="")
     {
         rowsTotal = $('#'+tabledomname+' tbody tr').length;
@@ -13,40 +18,44 @@ var ATable = function(options) {
         {
             $('#'+tabledomname).after('<label classs="notfound">Record Not Found</label>');
         }
+
         tablePaging(tabledomname,rowcounts);
+		$('#'+tabledomname+'totalcount').html(rowsTotal);
+        $('#'+tabledomname+'totalcountmain').show();
+    	$('#'+tabledomname+'totalcount').show();
     }else{
-         $('#'+tabledomname).after('<label id="'+tabledomname+'notfound" classs="atablenotfound">Records Loading</label>');
-       var htmls = "";
-       $.getJSON( datafromwhat, function( data ) {
-           $.each( data, function( key, val ) {
-               console.log(key);
-              htmls += "<tr>";
-              $.each( val, function( key, val ) {
-                  htmls += "<td id='" + key + "'>" + val + "</td>";
-              });
-              htmls += "</tr>";
-           });
-           $('#'+tabledomname+'notfound').remove();
-           $('#'+tabledomname+" tbody").append(htmls);
-           rowsTotal = $('#'+tabledomname+' tbody tr').length;
-           if(rowsTotal=="" || rowsTotal==null)
-           {
-                $('#'+tabledomname).after('<label classs="atablenotfound">Record Not Found</label>');
-           }
-           tablePaging(tabledomname,rowcounts);
-        });
+
+        $('#'+tabledomname).after('<label id="'+tabledomname+'notfound" class="atablenotfound">Records Loading</label>');
+        var htmls = "";
+        $.getJSON( datafromwhat, function( data ) {
+            $.each( data, function( key, val ) {
+                console.log(key);
+               htmls += "<tr>";
+               $.each( val, function( key, val ) {
+                   htmls += "<td id='" + key + "'>" + val + "</td>";
+               });
+               htmls += "</tr>";
+            });
+            $('#'+tabledomname+'notfound').remove();
+            $('#'+tabledomname+" tbody").append(htmls);
+            rowsTotal = $('#'+tabledomname+' tbody tr').length;
+            if(rowsTotal=="" || rowsTotal==null)
+            {
+                 $('#'+tabledomname).after('<label classs="atablenotfound">Record Not Found</label>');
+            }
+            tablePaging(tabledomname,rowcounts);
+            $('#'+tabledomname+'totalcount').html(rowsTotal);
+            $('#'+tabledomname+'totalcountmain').show();
+    		$('#'+tabledomname+'totalcount').show();
+         });
     }
     
-    var tableop = {};
+    
     
    
     
-    $('#'+tabledomname).before('<input type="text" id="'+tabledomname+'search">');
-    
-    
-    
-    $('#'+tabledomname).before('<select id="'+tabledomname+'select"><option value="'+rowcounts+'">'+rowcounts+'</option><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="all">all</option></select>');
-    
+    $('#'+tabledomname).before('   <span id="'+tabledomname+'totalcountselect">Search :</span><input type="text" id="'+tabledomname+'search">');
+
     $('#'+tabledomname).before('<input type="button" id="exportexcelbutton" value="Export to Excel">');
     
     $('#'+tabledomname+'select').on('change', function (e) {
@@ -59,6 +68,8 @@ var ATable = function(options) {
         tablePaging(tabledomname,valueSelected);
     });
     
+    
+
      $('#'+tabledomname+'search').keyup(function(){
         var rowcountselect = $( "#"+tabledomname+"select option:selected" ).text();
         $('#'+tabledomname+' tbody tr').slice(0, rowcountselect).show();
